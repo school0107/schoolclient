@@ -1,51 +1,34 @@
 package com.school.schoolclient.client.feature;
 
 import com.school.schoolclient.client.config.SchoolConfig;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
-@Environment(EnvType.CLIENT)
 public class AnimationManager {
-    private static float currentAnimationSpeed = SchoolConfig.animationSpeed;
+    private static float swingProgress = 0.0f;
+    private static boolean swingInProgress = false;
 
     public static void init() {
+        // Khởi tạo Animation Manager
     }
 
-    public static void setLegacyAnimations(boolean enabled) {
-        SchoolConfig.enableLegacyAnimations = enabled;
-        SchoolConfig.saveConfig();
+    public static void tick() {
+        // Cập nhật animation mỗi tick
     }
 
-    public static void setAnimationSpeed(float speed) {
-        SchoolConfig.animationSpeed = Math.max(0.1f, Math.min(2.0f, speed));
-        currentAnimationSpeed = SchoolConfig.animationSpeed;
-        SchoolConfig.saveConfig();
-    }
-
-    public static float getAnimationSpeed() {
-        return currentAnimationSpeed;
-    }
-
-    public static boolean isLegacyAnimationsEnabled() {
-        return SchoolConfig.enableLegacyAnimations;
-    }
-
-    /**
-     * Áp dụng hiệu ứng hoạt ảnh kiếm 1.7 (cũ)
-     */
-    public static float applyLegacySwingAnimation(float swingProgress) {
-        if (!SchoolConfig.enableLegacyAnimations) {
-            return swingProgress;
+    public static float applyLegacySwingAnimation(float progress) {
+        if (!SchoolConfig.enableAnimation) {
+            return progress;
         }
-        // Animation swing 1.7 style - smoother arc
-        float f = swingProgress * (float) Math.PI;
-        return -((float) Math.cos(f + 1.5707963267948966D)) * 0.5f + 0.5f;
+
+        // Áp dụng hoạt ảnh 1.7 style
+        float speed = SchoolConfig.animationSpeed;
+        return progress * speed;
     }
 
-    /**
-     * Điều chỉnh tốc độ hoạt ảnh
-     */
-    public static float modifyAnimationTick(float tick) {
-        return tick * currentAnimationSpeed;
+    public static void setSwingProgress(float progress) {
+        swingProgress = progress;
+    }
+
+    public static float getSwingProgress() {
+        return swingProgress;
     }
 }

@@ -2,91 +2,107 @@ package com.school.schoolclient.client.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.fabricmc.loader.api.FabricLoader;
+
 import java.io.File;
-import java.nio.file.Files;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class SchoolConfig {
-    private static final Path CONFIG_PATH = Paths.get("config/schoolclient.json");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
     // Animation Settings
-    public static boolean enableLegacyAnimations = false;
-    public static float animationSpeed = 1.0f;
+    public static boolean enableAnimation = true;
+    public static float animationSpeed = 1.5f;
 
     // Zoom Settings
     public static boolean enableZoom = true;
-    public static float maxZoom = 8.0f;
-    public static float zoomSensitivity = 0.1f;
+    public static float maxZoom = 10.0f;
 
     // HUD Settings
-    public static boolean showCoordinates = true;
-    public static boolean showDirection = true;
-    public static boolean showCPS = true;
     public static boolean showFPS = true;
     public static boolean showPing = true;
-    public static int hudX = 10;
-    public static int hudY = 10;
+    public static boolean showCPS = true;
+    public static boolean showCoordinates = true;
+    public static boolean showDirection = true;
+
+    // HUD Position
+    public static double hudX = 10;
+    public static double hudY = 10;
     public static float hudScale = 1.0f;
-    public static int hudColor = 0xFFFFFF;
+
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Path CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
+    private static final File CONFIG_FILE = CONFIG_DIR.resolve("schoolclient.json").toFile();
 
     public static void loadConfig() {
-        try {
-            if (Files.exists(CONFIG_PATH)) {
-                String content = Files.readString(CONFIG_PATH);
-                ConfigData data = GSON.fromJson(content, ConfigData.class);
+        if (CONFIG_FILE.exists()) {
+            try (FileReader reader = new FileReader(CONFIG_FILE)) {
+                ConfigData data = GSON.fromJson(reader, ConfigData.class);
                 applyConfig(data);
-            } else {
+            } catch (Exception e) {
+                e.printStackTrace();
                 saveConfig();
+            }
+        } else {
+            saveConfig();
+        }
+    }
+
+    public static void saveConfig() {
+        try {
+            if (!CONFIG_FILE.getParentFile().exists()) {
+                CONFIG_FILE.getParentFile().mkdirs();
+            }
+
+            ConfigData data = new ConfigData();
+            data.enableAnimation = enableAnimation;
+            data.animationSpeed = animationSpeed;
+            data.enableZoom = enableZoom;
+            data.maxZoom = maxZoom;
+            data.showFPS = showFPS;
+            data.showPing = showPing;
+            data.showCPS = showCPS;
+            data.showCoordinates = showCoordinates;
+            data.showDirection = showDirection;
+            data.hudX = hudX;
+            data.hudY = hudY;
+            data.hudScale = hudScale;
+
+            try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+                GSON.toJson(data, writer);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void saveConfig() {
-        try {
-            Files.createDirectories(CONFIG_PATH.getParent());
-            ConfigData data = new ConfigData();
-            String json = GSON.toJson(data);
-            Files.writeString(CONFIG_PATH, json);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void applyConfig(ConfigData data) {
-        enableLegacyAnimations = data.enableLegacyAnimations;
+        enableAnimation = data.enableAnimation;
         animationSpeed = data.animationSpeed;
         enableZoom = data.enableZoom;
         maxZoom = data.maxZoom;
-        zoomSensitivity = data.zoomSensitivity;
-        showCoordinates = data.showCoordinates;
-        showDirection = data.showDirection;
-        showCPS = data.showCPS;
         showFPS = data.showFPS;
         showPing = data.showPing;
+        showCPS = data.showCPS;
+        showCoordinates = data.showCoordinates;
+        showDirection = data.showDirection;
         hudX = data.hudX;
         hudY = data.hudY;
         hudScale = data.hudScale;
-        hudColor = data.hudColor;
     }
 
     public static class ConfigData {
-        public boolean enableLegacyAnimations = SchoolConfig.enableLegacyAnimations;
-        public float animationSpeed = SchoolConfig.animationSpeed;
-        public boolean enableZoom = SchoolConfig.enableZoom;
-        public float maxZoom = SchoolConfig.maxZoom;
-        public float zoomSensitivity = SchoolConfig.zoomSensitivity;
-        public boolean showCoordinates = SchoolConfig.showCoordinates;
-        public boolean showDirection = SchoolConfig.showDirection;
-        public boolean showCPS = SchoolConfig.showCPS;
-        public boolean showFPS = SchoolConfig.showFPS;
-        public boolean showPing = SchoolConfig.showPing;
-        public int hudX = SchoolConfig.hudX;
-        public int hudY = SchoolConfig.hudY;
-        public float hudScale = SchoolConfig.hudScale;
-        public int hudColor = SchoolConfig.hudColor;
+        public boolean enableAnimation = true;
+        public float animationSpeed = 1.5f;
+        public boolean enableZoom = true;
+        public float maxZoom = 10.0f;
+        public boolean showFPS = true;
+        public boolean showPing = true;
+        public boolean showCPS = true;
+        public boolean showCoordinates = true;
+        public boolean showDirection = true;
+        public double hudX = 10;
+        public double hudY = 10;
+        public float hudScale = 1.0f;
     }
 }

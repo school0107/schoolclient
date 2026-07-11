@@ -1,74 +1,57 @@
 package com.school.schoolclient.client.feature;
 
 import com.school.schoolclient.client.config.SchoolConfig;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import org.lwjgl.glfw.GLFW;
 
-@Environment(EnvType.CLIENT)
 public class ZoomManager {
     private static float currentZoom = 1.0f;
     private static float targetZoom = 1.0f;
-    private static final float ZOOM_SMOOTHNESS = 0.1f;
+    private static final float ZOOM_MIN = 1.0f;
+    private static final float ZOOM_MAX = 10.0f;
+    private static final float ZOOM_SPEED = 0.1f;
 
     public static void init() {
+        // Khởi tạo Zoom Manager
     }
 
     public static void tick() {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) return;
 
-        // Làm mịn quá trình phóng to
-        currentZoom += (targetZoom - currentZoom) * ZOOM_SMOOTHNESS;
-    }
-
-    /**
-     * Bắt đầu phóng to
-     */
-    public static void startZoom() {
-        if (SchoolConfig.enableZoom) {
-            targetZoom = SchoolConfig.maxZoom;
+        // Kiểm tra phím Ctrl+C để reset zoom
+        if (isKeyPressed(GLFW.GLFW_KEY_C) && isKeyPressed(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+            targetZoom = 1.0f;
         }
+
+        // Mượt mà zoom từ current sang target
+        if (Math.abs(currentZoom - targetZoom) > 0.01f) {
+            currentZoom += (targetZoom - currentZoom) * 0.1f;
+        } else {
+            currentZoom = targetZoom;
+        }
+
+        // Clamp zoom value
+        currentZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, currentZoom));
     }
 
-    /**
-     * Dừng phóng to
-     */
-    public static void stopZoom() {
-        targetZoom = 1.0f;
+    public static void handleMouseScroll(double amount) {
+        if (!SchoolConfig.enableZoom) return;
+
+        targetZoom += (float) amount * ZOOM_SPEED;
+        targetZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, targetZoom));
     }
 
-    /**
-     * Điều chỉnh độ nhạy chuột khi phóng to
-     */
-    public static float getMouseSensitivity() {
-        return 1.0f / currentZoom;
-    }
-
-    /**
-     * Lấy giá trị phóng to hiện tại
-     */
     public static float getCurrentZoom() {
         return currentZoom;
     }
 
-    /**
-     * Đặt độ phóng to tối đa
-     */
-    public static void setMaxZoom(float zoom) {
-        SchoolConfig.maxZoom = Math.max(1.0f, Math.min(16.0f, zoom));
-        SchoolConfig.saveConfig();
-    }
-
-    /**
-     * Thay đổi độ nhạy zoom
-     */
-    public static void setZoomSensitivity(float sensitivity) {
-        SchoolConfig.zoomSensitivity = Math.max(0.01f, Math.min(1.0f, sensitivity));
-        SchoolConfig.saveConfig();
-    }
-
     public static boolean isZoomEnabled() {
-        return SchoolConfig.enableZoom;
+        return SchoolConfig.enableZoom && currentZoom > 1.0f;
+    }
+
+    private static boolean isKeyPressed(int key) {
+        long window = MinecraftClient.getInstance().getWindow().getHandle();
+        return GLFW.glfwGetKey(window, key) == GLFW.GLFW_PRESS;
     }
 }
