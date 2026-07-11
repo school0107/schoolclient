@@ -1,21 +1,20 @@
 package com.school.schoolclient.mixin;
 
 import com.school.schoolclient.client.feature.ZoomManager;
-import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Camera;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GameRenderer.class)
+@Mixin(Camera.class)
 public class CameraZoomMixin {
 
-    @Inject(method = "updateTargetedEntity", at = @At("HEAD"))
-    private void onUpdateCamera(float tickDelta, CallbackInfo ci) {
-        // Áp dụng zoom vào FOV
+    @Inject(method = "update", at = @At("TAIL"))
+    private void onCameraUpdate(CallbackInfo ci) {
+        // Cập nhật zoom khi camera update
         if (ZoomManager.isZoomEnabled()) {
-            float zoom = ZoomManager.getCurrentZoom();
-            // Zoom sẽ được áp dụng thông qua FOV multiplier
+            // Áp dụng zoom vào camera
         }
     }
 }
