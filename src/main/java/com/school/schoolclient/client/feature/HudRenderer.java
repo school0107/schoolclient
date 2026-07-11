@@ -1,67 +1,74 @@
 package com.school.schoolclient.client.feature;
 
 import com.school.schoolclient.client.config.SchoolConfig;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.ClientPlayerEntity;
 
-@Environment(EnvType.CLIENT)
 public class HudRenderer {
+    private static final int COLOR_WHITE = 0xFFFFFF;
+    private static final int COLOR_YELLOW = 0xFFFF00;
+    private static final int COLOR_GREEN = 0x00FF00;
 
-    /**
-     * Vẽ HUD trên màn hình
-     */
     public static void renderHud(DrawContext context, float tickDelta) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || !HudManager.isHudEnabled()) {
-            return;
-        }
+        if (client.player == null) return;
 
-        int y = SchoolConfig.hudY;
-        int textColor = SchoolConfig.hudColor;
+        int x = (int) SchoolConfig.hudX;
+        int y = (int) SchoolConfig.hudY;
         float scale = SchoolConfig.hudScale;
 
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, 1.0f);
 
-        // Hiển thị FPS
+        // FPS
         if (SchoolConfig.showFPS) {
-            String fpsText = "FPS: " + HudManager.getFPS();
-            context.drawTextWithBackground(client.textRenderer, fpsText, SchoolConfig.hudX, y, textColor, 0);
-            y += 12;
+            String fpsText = "FPS: " + client.getCurrentFps();
+            context.drawTextWithBackground(client.textRenderer, fpsText, x, y, COLOR_YELLOW, 0x000000);
+            y += 10;
         }
 
-        // Hiển thị Ping
+        // Ping
         if (SchoolConfig.showPing) {
-            String pingText = "Ping: " + HudManager.getPing() + "ms";
-            context.drawTextWithBackground(client.textRenderer, pingText, SchoolConfig.hudX, y, textColor, 0);
-            y += 12;
+            int ping = client.player.networkHandler.getPlayerListEntry(client.player.getUuid()).getLatency();
+            String pingText = "Ping: " + ping + "ms";
+            context.drawTextWithBackground(client.textRenderer, pingText, x, y, COLOR_YELLOW, 0x000000);
+            y += 10;
         }
 
-        // Hiển thị CPS
+        // CPS
         if (SchoolConfig.showCPS) {
             String cpsText = "CPS: L" + HudManager.getLeftCPS() + " R" + HudManager.getRightCPS();
-            context.drawTextWithBackground(client.textRenderer, cpsText, SchoolConfig.hudX, y, textColor, 0);
-            y += 12;
+            context.drawTextWithBackground(client.textRenderer, cpsText, x, y, COLOR_GREEN, 0x000000);
+            y += 10;
         }
 
-        // Hiển thị Tọa độ
+        // Coordinates
         if (SchoolConfig.showCoordinates) {
-            String coordText = String.format("XYZ: %.1f / %.1f / %.1f",
-                    HudManager.getPlayerX(),
-                    HudManager.getPlayerY(),
-                    HudManager.getPlayerZ());
-            context.drawTextWithBackground(client.textRenderer, coordText, SchoolConfig.hudX, y, textColor, 0);
-            y += 12;
+            ClientPlayerEntity player = client.player;
+            String coordText = String.format("X: %.1f Y: %.1f Z: %.1f", 
+                    player.getX(), player.getY(), player.getZ());
+            context.drawTextWithBackground(client.textRenderer, coordText, x, y, COLOR_WHITE, 0x000000);
+            y += 10;
         }
 
-        // Hiển thị Hướng
+        // Direction
         if (SchoolConfig.showDirection) {
-            String directionText = "Hướng: " + HudManager.getDirection();
-            context.drawTextWithBackground(client.textRenderer, directionText, SchoolConfig.hudX, y, textColor, 0);
+            String direction = getDirection(client.player.getYaw());
+            String dirText = "Direction: " + direction;
+            context.drawTextWithBackground(client.textRenderer, dirText, x, y, COLOR_WHITE, 0x000000);
         }
 
         context.getMatrices().pop();
+    }
+
+    private static String getDirection(float yaw) {
+        yaw = yaw % 360;
+        if (yaw < 0) yaw += 360;
+
+        if (yaw >= 315 || yaw < 45) return "South";
+        if (yaw >= 45 && yaw < 135) return "West";
+        if (yaw >= 135 && yaw < 225) return "North";
+        return "East";
     }
 }
