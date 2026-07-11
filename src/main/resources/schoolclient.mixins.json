@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.school.schoolclient.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "PlayerAnimationMixin",
+    "ItemStackMixin"
+  ],
+  "client": [
+    "GameRendererMixin",
+    "MouseMixin",
+    "ClientPlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
