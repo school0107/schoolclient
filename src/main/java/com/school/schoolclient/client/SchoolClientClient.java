@@ -1,6 +1,5 @@
 package com.school.schoolclient.client;
 
-import com.school.schoolclient.SchoolClientMod;
 import com.school.schoolclient.client.config.SchoolConfig;
 import com.school.schoolclient.client.feature.AnimationManager;
 import com.school.schoolclient.client.feature.HudManager;
@@ -16,42 +15,30 @@ import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class SchoolClientClient implements ClientModInitializer {
-    public static KeyBinding ZOOM_KEY;
     public static KeyBinding CONFIG_KEY;
 
     @Override
     public void onInitializeClient() {
-        SchoolClientMod.LOGGER.info("SchoolClient Client initialized!");
-
-        // Load configuration
         SchoolConfig.loadConfig();
 
-        // Initialize key bindings
-        ZOOM_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.schoolclient.zoom",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_C,
-                "category.schoolclient"
-        ));
-
+        // Đăng ký key binding
         CONFIG_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.schoolclient.config",
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_P,
-                "category.schoolclient"
+                GLFW.GLFW_KEY_N,
+                "category.schoolclient.main"
         ));
 
-        // Register feature managers
+        // Khởi tạo các manager
         AnimationManager.init();
         ZoomManager.init();
         HudManager.init();
 
-        // Register client tick event
+        // Đăng ký tick event
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player != null) {
-                ZoomManager.tick();
-                HudManager.tick();
-            }
+            AnimationManager.tick();
+            ZoomManager.tick();
+            HudManager.tick();
         });
     }
 }

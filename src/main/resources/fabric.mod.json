@@ -3,19 +3,15 @@
   "id": "schoolclient",
   "version": "${version}",
   "name": "SchoolClient",
-  "description": "Optimized Minecraft Client Mod with Animation Customization, Zoom, HUD Display",
-  "authors": [
-    "school0107"
-  ],
+  "description": "A Minecraft client mod with animation, zoom, and HUD features",
+  "authors": ["school0107"],
   "contact": {
-    "homepage": "https://github.com/school0107/schoolclient"
+    "homepage": "https://github.com/school0107/schoolclient",
+    "sources": "https://github.com/school0107/schoolclient"
   },
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "main": [
-      "com.school.schoolclient.SchoolClientMod"
-    ],
     "client": [
       "com.school.schoolclient.client.SchoolClientClient"
     ]
@@ -24,8 +20,8 @@
     "schoolclient.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16",
+    "fabricloader": ">=0.14.0",
     "fabric-api": "*",
-    "minecraft": "~1.21.1"
+    "minecraft": "~1.20"
   }
 }
